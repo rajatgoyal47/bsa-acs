@@ -84,7 +84,9 @@ uart_enable_txintr()
 
   /* Enable TX interrupt by setting mask bit[5] in UARTIMSC */
   data = uart_reg_read(BSA_UARTIMSC, WIDTH_BIT32);
+  val_print(ACS_PRINT_DEBUG, "\n       uart_enable_txintr BSA_UARTIMSC initial value : %lx", data);
   data = data | (1<<5);
+  val_print(ACS_PRINT_DEBUG, "\n       uart_enable_txintr writing to BSA_UARTIMSC, value : %lx", data);
   uart_reg_write(BSA_UARTIMSC, WIDTH_BIT32, data);
 }
 
@@ -97,6 +99,9 @@ uart_disable_txintr()
   data = uart_reg_read(BSA_UARTIMSC, WIDTH_BIT32);
   data = data & (~(1<<5));
   uart_reg_write(BSA_UARTIMSC, WIDTH_BIT32, data);
+  data = uart_reg_read(BSA_UARTIMSC, WIDTH_BIT32);
+
+  val_print(ACS_PRINT_DEBUG, "\n       uart_disable_txintr final BSA_UARTIMSC : %lx     ", data);
 
 }
 
@@ -212,6 +217,9 @@ payload1()
                  return;
               }
 
+              val_print(ACS_PRINT_DEBUG, "\n       count : 0x%x", count);
+              val_print(ACS_PRINT_DEBUG, "\n       interface_type : 0x%x", interface_type);
+              val_print(ACS_PRINT_DEBUG, "\n       l_uart_base : %llx", l_uart_base);
               val_peripheral_uart_setup();
               uart_enable_txintr();
               val_print_raw(l_uart_base, g_print_level,
