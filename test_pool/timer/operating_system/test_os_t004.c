@@ -62,6 +62,7 @@ payload()
 
   while (timer_num) {
       timer_num--;  //array index starts from 0, so subtract 1 from count
+      val_print(ACS_PRINT_ERR, "\n       Running for timer_num %d ", timer_num);
 
       if (val_timer_get_info(TIMER_INFO_IS_PLATFORM_TIMER_SECURE, timer_num))
           continue;    //Skip Secure Timer
@@ -85,6 +86,7 @@ payload()
           val_set_status(index, RESULT_SKIP(TEST_NUM, 3));
           return;
       }
+      val_print(ACS_PRINT_ERR, "\n       cnt_base_n : 0x%lx ", cnt_base_n);
 
       intid = val_timer_get_info(TIMER_INFO_SYS_INTID, timer_num);
 
@@ -94,6 +96,7 @@ payload()
           val_set_status(index, RESULT_FAIL(TEST_NUM, 1));
           return;
       }
+      val_print(ACS_PRINT_ERR, "\n       intid : 0x%lx ", intid);
 
       /* Install ISR */
       if (val_gic_install_isr(intid, isr)) {
@@ -102,6 +105,7 @@ payload()
           return;
       }
 
+      val_print(ACS_PRINT_ERR, "\n       Writing to System Timer Registers", 0);
       /* enable System timer */
       val_timer_set_system_timer((addr_t)cnt_base_n, timer_expire_val);
 

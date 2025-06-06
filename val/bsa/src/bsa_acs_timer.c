@@ -91,9 +91,14 @@ val_timer_set_system_timer(addr_t cnt_base_n, uint32_t timeout)
 {
   /* Start the System timer */
   val_mmio_write(cnt_base_n + CNTP_TVAL, timeout);
+  val_print(ACS_PRINT_ERR, "\n       Write address : 0x%lx ", cnt_base_n + CNTP_TVAL);
+  val_print(ACS_PRINT_ERR, ", Value : 0x%lx ", timeout);
 
   /* enable System timer */
   val_mmio_write(cnt_base_n + CNTP_CTL, 1);
+  val_print(ACS_PRINT_ERR, "\n       Write address : 0x%lx ", cnt_base_n + CNTP_CTL);
+  val_print(ACS_PRINT_ERR, ", Value : 0x%lx ", 1);
+
 
 }
 
