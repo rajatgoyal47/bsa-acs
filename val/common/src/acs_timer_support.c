@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2016-2018, 2023-2024, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2016-2018, 2023-2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,31 @@
 #include "common/include/acs_common.h"
 
 /**
+  @brief This API is used to get the effective HCR_EL2.E2H
+**/
+uint8_t get_effective_e2h(void)
+{
+  uint32_t effective_E2H;
+  uint32_t hcr_e2h = VAL_EXTRACT_BITS(ArmReadHcrEl2(), 34, 34);
+  uint32_t feat_vhe = VAL_EXTRACT_BITS(ArmReadAA64MMFR1EL1(), 8, 11);
+  uint32_t e2h0 = VAL_EXTRACT_BITS(ArmReadAA64MMFR4EL1(), 24, 27);
+
+  val_print(ACS_PRINT_DEBUG, "\n       hcr_e2h   : 0x%x", hcr_e2h);
+  val_print(ACS_PRINT_DEBUG, "\n       feat_vhe  : 0x%x", feat_vhe);
+  val_print(ACS_PRINT_DEBUG, "\n       e2h0 : 0x%x", e2h0);
+
+  if (feat_vhe == 0x0) //ID_AA64MMFR1_EL1.VH
+    effective_E2H = 0;
+  else if (e2h0 != 0x0) //E2H0 = 0 means implemented
+    effective_E2H = 1;
+  else
+    effective_E2H = hcr_e2h;
+
+  val_print(ACS_PRINT_DEBUG, "\n       effective e2h : 0x%x", effective_E2H);
+  return effective_E2H;
+}
+
+/**
   @brief   This API is used to read Timer related registers
 
   @param   Reg  Register to be read
@@ -31,6 +56,9 @@ ArmArchTimerReadReg (
     ARM_ARCH_TIMER_REGS   Reg
   )
 {
+    static uint8_t effective_e2h = 0xFF;
+    if (effective_e2h == 0xFF)
+      effective_e2h = get_effective_e2h();
 
     switch (Reg) {
 
@@ -41,28 +69,30 @@ ArmArchTimerReadReg (
       return ArmReadCntPct();
 
     case CntkCtl:
-      return ArmReadCntkCtl();
+      return effective_e2h ? ArmReadCntkCtl12() : ArmReadCntkCtl();
 
     case CntpTval:
-      return ArmReadCntpTval();
+      /* Check For E2H, If EL2 Host then access to cntp_tval_el02 */
+      return effective_e2h ? ArmReadCntpTval02() : ArmReadCntpTval();
 
     case CntpCtl:
-      return ArmReadCntpCtl();
+      /* Check For E2H, If EL2 Host then access to cntp_ctl_el02 */
+      return effective_e2h ? ArmReadCntpCtl02() : ArmReadCntpCtl();
 
     case CntvTval:
-      return ArmReadCntvTval();
+      return effective_e2h ? ArmReadCntvTval02() : ArmReadCntvTval();
 
     case CntvCtl:
-      return ArmReadCntvCtl();
+      return effective_e2h ? ArmReadCntvCtl02() : ArmReadCntvCtl();
 
     case CntvCt:
       return ArmReadCntvCt();
 
     case CntpCval:
-      return ArmReadCntpCval();
+      return effective_e2h ? ArmReadCntpCval02() : ArmReadCntpCval();
 
     case CntvCval:
-      return ArmReadCntvCval();
+      return effective_e2h ? ArmReadCntvCval02() : ArmReadCntvCval();
 
     case CntvOff:
       return ArmReadCntvOff();
@@ -103,6 +133,10 @@ ArmArchTimerWriteReg (
   )
 {
 
+    static uint8_t effective_e2h = 0xFF;
+    if (effective_e2h == 0xFF)
+      effective_e2h = get_effective_e2h();
+
     switch(Reg) {
 
     case CntPct:
@@ -110,23 +144,38 @@ ArmArchTimerWriteReg (
       break;
 
     case CntkCtl:
-      ArmWriteCntkCtl(*data_buf);
+      if (effective_e2h)
+        ArmWriteCntkCtl12(*data_buf);
+      else
+        ArmWriteCntkCtl(*data_buf);
       break;
 
     case CntpTval:
-      ArmWriteCntpTval(*data_buf);
+      if (effective_e2h)
+        ArmWriteCntpTval02(*data_buf);
+      else
+        ArmWriteCntpTval(*data_buf);
       break;
 
     case CntpCtl:
-      ArmWriteCntpCtl(*data_buf);
+      if (effective_e2h)
+        ArmWriteCntpCtl02(*data_buf);
+      else
+        ArmWriteCntpCtl(*data_buf);
       break;
 
     case CntvTval:
-      ArmWriteCntvTval(*data_buf);
+      if (effective_e2h)
+        ArmWriteCntvTval02(*data_buf);
+      else
+        ArmWriteCntvTval(*data_buf);
       break;
 
     case CntvCtl:
-      ArmWriteCntvCtl(*data_buf);
+      if (effective_e2h)
+        ArmWriteCntvCtl02(*data_buf);
+      else
+        ArmWriteCntvCtl(*data_buf);
       break;
 
     case CntvCt:
