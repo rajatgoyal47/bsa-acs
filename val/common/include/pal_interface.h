@@ -71,6 +71,7 @@
 #define MAX_SID        32
 #define MMU_PGT_IAS    48
 #define MMU_PGT_OAS    48
+#define SMMU_MAP_SIZE  0x20000
 
 #elif TARGET_EMULATION
 #include <stdlib.h>
@@ -91,6 +92,7 @@
 
 #define MAX_SID          PLATFORM_OVERRIDE_MAX_SID
 #define MAX_IRQ_CNT      PLATFORM_BM_OVERRIDE_MAX_IRQ_CNT
+#define SMMU_MAP_SIZE    PLATFORM_BM_OVERRIDE_SMMU_MAP_SIZE
 
 #elif ENABLE_OOB
   typedef INT8   int8_t;
@@ -118,6 +120,7 @@
 #define MAX_SID         PLATFORM_OVERRIDE_MAX_SID
 #define MMU_PGT_IAS      48
 #define MMU_PGT_OAS      48
+#define SMMU_MAP_SIZE   PLATFORM_BM_OVERRIDE_SMMU_MAP_SIZE
 
 #else
 #include "../../../pal/include/platform_override.h"
@@ -135,6 +138,7 @@
 
 /* Max SID Size in SMMU is 32 */
 #define MAX_SID  32
+#define SMMU_MAP_SIZE        PLATFORM_OVERRIDE_SMMU_MAP_SIZE
 
 #if PLATFORM_OVERRIDE_TIMEOUT
     #define TIMEOUT_LARGE    PLATFORM_OVERRIDE_TIMEOUT_LARGE

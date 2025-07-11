@@ -68,6 +68,7 @@
 /* Change OVERRIDE_SMMU_BASE to non-zero value for this to take effect */
 #define PLATFORM_OVERRIDE_SMMU_BASE        0x0 //0x2B400000
 #define PLATFORM_OVERRIDE_SMMU_ARCH_MAJOR  3
+#define PLATFORM_OVERRIDE_SMMU_MAP_SIZE    0x20000 //2*64 KB
 
 extern UINT32 g_pcie_p2p;
 extern UINT32 g_pcie_cache_present;
